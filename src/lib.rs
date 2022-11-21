@@ -10,12 +10,19 @@ use std::time::Instant;
 py_module_initializer!(pysyr, |py, m| {
     m.add(py, "__doc__", "This module is implemented in Rust.")?;
     m.add(py, "collatz", py_fn!(py, collatz_py(a: String)))?;
+    m.add(py, "collatz_pow", py_fn!(py, collatz_pow_py(a: u64, exponent: u32)))?;
     m.add(py, "collatz_inc", py_fn!(py, collatz_inc_py(from: String, to: String)))?;
     Ok(())
 });
 
 fn collatz_py(_:Python, a: String) -> PyResult<(u64,u64,u64)> {
     let out = optimum_syracuse(BigUint::from_str(&a).unwrap());
+    Ok(out)
+}
+
+fn collatz_pow_py(_:Python, a: u64, exponent: u32) -> PyResult<(u64,u64,u64)> {
+    let n:BigUint = BigUint::pow(&a.to_biguint().unwrap(), exponent);
+    let out = optimum_syracuse(n);
     Ok(out)
 }
 
