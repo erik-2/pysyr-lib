@@ -6,7 +6,7 @@ use std::str::FromStr;
 use std::time::Instant;
 
 // add bindings to the generated python module
-// N.B: names: "rust2py" must be the name of the `.so` or `.pyd` file
+// N.B: names: "pysyr" must be the name of the `.so` or `.pyd` file
 py_module_initializer!(rust2py, |py, m| {
     m.add(py, "__doc__", "This module is implemented in Rust.")?;
     m.add(py, "collatz", py_fn!(py, collatz_py(a: String)))?;
