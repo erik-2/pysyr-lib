@@ -8,9 +8,9 @@ use std::time::Instant;
 // add bindings to the generated python module
 // N.B: names: "pysyr" must be the name of the `.so` or `.pyd` file
 py_module_initializer!(pysyr, |py, m| {
-    m.add(py, "__doc__", "This module is implemented in Rust.")?;
+    m.add(py, "__doc__", "This module is implemented in Rust.\n Collatz compute the sequence for a given integer given by string and return the tuple: (total iterations, number of multiply operations, number of division operations\n collatz_pow(a,b,i) give the same results for the number a^b+i")?;
     m.add(py, "collatz", py_fn!(py, collatz_py(a: String)))?;
-    m.add(py, "collatz_pow", py_fn!(py, collatz_pow_py(a: u64, exponent: u32)))?;
+    m.add(py, "collatz_pow", py_fn!(py, collatz_pow_py(a: u64, exponent: u32,i:u64)))?;
     m.add(py, "collatz_inc", py_fn!(py, collatz_inc_py(from: String, to: String)))?;
     Ok(())
 });
@@ -20,8 +20,8 @@ fn collatz_py(_:Python, a: String) -> PyResult<(u64,u64,u64)> {
     Ok(out)
 }
 
-fn collatz_pow_py(_:Python, a: u64, exponent: u32) -> PyResult<(u64,u64,u64)> {
-    let n:BigUint = BigUint::pow(&a.to_biguint().unwrap(), exponent);
+fn collatz_pow_py(_:Python, a: u64, exponent: u32,i: u64) -> PyResult<(u64,u64,u64)> {
+    let n:BigUint = BigUint::pow(&a.to_biguint().unwrap(), exponent) + i;
     let out = optimum_syracuse(n);
     Ok(out)
 }
