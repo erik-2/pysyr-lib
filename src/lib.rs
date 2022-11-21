@@ -7,7 +7,7 @@ use std::time::Instant;
 
 // add bindings to the generated python module
 // N.B: names: "pysyr" must be the name of the `.so` or `.pyd` file
-py_module_initializer!(rust2py, |py, m| {
+py_module_initializer!(pysyr, |py, m| {
     m.add(py, "__doc__", "This module is implemented in Rust.")?;
     m.add(py, "collatz", py_fn!(py, collatz_py(a: String)))?;
     m.add(py, "collatz_inc", py_fn!(py, collatz_inc_py(from: String, to: String)))?;
@@ -54,7 +54,8 @@ fn optimum_syracuse(n: BigUint) -> (u64, u64, u64) {
     }
     loop {
         i = (&i << 1) + &i + &one >> 1;
-        mul += 2;
+        mul += 1;
+        div += 1;
         // the following line is worse :
         //i = &i >> &i.trailing_zeros().unwrap();
         let a: u64 = i.trailing_zeros().unwrap();
