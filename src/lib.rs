@@ -5,14 +5,13 @@ use num_integer::Integer;
 use std::str::FromStr;
 use std::time::Instant;
 
-let MAX = BigUint::pow(2,64);
 
 // add bindings to the generated python module
 // N.B: names: "pysyr" must be the name of the `.so` or `.pyd` file
 py_module_initializer!(pysyr, |py, m| {
     m.add(py, "__doc__", "This module is implemented in Rust.\n Collatz compute the sequence for a given integer given by string and return the tuple: (total iterations, number of multiply operations, number of division operations\n collatz_pow(a,b,i) give the same results for the number a^b+i")?;
     m.add(py, "collatz", py_fn!(py, collatz_py(a: String)))?;
-    m.add(py, "collatz_pow", py_fn!(py, collatz_pow_py(a: u64, exponent: u32,i:i64)))?;
+    m.add(py, "collatz_pow", py_fn!(py, collatz_pow_py(a: u64, exponent: u32,i:i64, verbose: bool)))?;
     m.add(py, "collatz_inc", py_fn!(py, collatz_inc_py(from: String, to: String)))?;
     Ok(())
 });
@@ -22,15 +21,31 @@ fn collatz_py(_:Python, a: String) -> PyResult<(u64,u64,u64)> {
     Ok(out)
 }
 
-fn collatz_pow_py(_:Python, a: u64, exponent: u32,i: i64) -> PyResult<(u64,u64,u64)> {
-    let n:BigUint = BigUint::pow(&a.to_biguint().unwrap(), exponent) + i;
-    if n < 0 {
-        Err("Undefined for negative integer")
+fn collatz_pow_py(_:Python, a: u64, exponent: u32,i: i64, verbose: bool) -> PyResult<(u64,u64,u64)> {
+    let mut n:BigUint = BigUint::pow(&a.to_biguint().unwrap(), exponent);
+    let abs_i = i.abs().to_biguint().unwrap();
+
+    if num::signum(i) == -1 {
+        if abs_i > n {
+            println!("Not defined for negative integers");
+            n += abs_i;
+        }
+        else {
+            n -= abs_i;
+        }
     }
     else {
-        let out = optimum_syracuse(n);
-        Ok(out)
+        n += abs_i;
     }
+
+    let now = Instant::now();
+    let out = optimum_syracuse(n);
+    if verbose {
+        println!("\t\t...elapsed: {:.2?}", now.elapsed());
+    }
+
+    Ok(out)
+
 }
 
 fn collatz_inc_py(_:Python, from: String, to: String) -> PyResult<bool> {
